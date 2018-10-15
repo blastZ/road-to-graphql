@@ -41,4 +41,31 @@ const users = [
   }
 ];
 
-export { posts, users };
+const comments = [
+  {
+    id: 'c-1',
+    text: 'This worked fine, Thanks.',
+    author: 'u-3',
+    post: 'p-3'
+  },
+  {
+    id: 'c-1',
+    text: 'This did not work.',
+    author: 'u-2',
+    post: 'p-2'
+  },
+  {
+    id: 'c-1',
+    text: 'Never mind, I fix it.',
+    author: 'u-2',
+    post: 'p-2'
+  },
+  {
+    id: 'c-1',
+    text: 'Glad for you to enjoy it.',
+    author: 'u-1',
+    post: 'p-1'
+  }
+];
+
+export { posts, users, comments };
