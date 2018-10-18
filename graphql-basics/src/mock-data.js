@@ -1,4 +1,4 @@
-const posts = [
+let posts = [
   {
     id: 'p-1',
     title: 'Post One',
@@ -22,7 +22,7 @@ const posts = [
   }
 ];
 
-const users = [
+let users = [
   {
     id: 'u-1',
     name: 'AA',
@@ -41,7 +41,7 @@ const users = [
   }
 ];
 
-const comments = [
+let comments = [
   {
     id: 'c-1',
     text: 'This worked fine, Thanks.',
@@ -49,23 +49,35 @@ const comments = [
     post: 'p-3'
   },
   {
-    id: 'c-1',
+    id: 'c-2',
     text: 'This did not work.',
     author: 'u-2',
     post: 'p-2'
   },
   {
-    id: 'c-1',
+    id: 'c-3',
     text: 'Never mind, I fix it.',
     author: 'u-2',
     post: 'p-2'
   },
   {
-    id: 'c-1',
+    id: 'c-4',
     text: 'Glad for you to enjoy it.',
     author: 'u-1',
     post: 'p-1'
   }
 ];
 
-export { posts, users, comments };
+const setPosts = newPosts => {
+  posts = newPosts;
+};
+
+const setUsers = newUsers => {
+  users = newUsers;
+};
+
+const setComments = newComments => {
+  comments = newComments;
+};
+
+export { posts, users, comments, setPosts, setUsers, setComments };
