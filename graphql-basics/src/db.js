@@ -1,4 +1,4 @@
-let posts = [
+const posts = [
   {
     id: 'p-1',
     title: 'Post One',
@@ -22,7 +22,7 @@ let posts = [
   }
 ];
 
-let users = [
+const users = [
   {
     id: 'u-1',
     name: 'AA',
@@ -41,7 +41,7 @@ let users = [
   }
 ];
 
-let comments = [
+const comments = [
   {
     id: 'c-1',
     text: 'This worked fine, Thanks.',
@@ -68,16 +68,10 @@ let comments = [
   }
 ];
 
-const setPosts = newPosts => {
-  posts = newPosts;
+const db = {
+  posts,
+  users,
+  comments
 };
 
-const setUsers = newUsers => {
-  users = newUsers;
-};
-
-const setComments = newComments => {
-  comments = newComments;
-};
-
-export { posts, users, comments, setPosts, setUsers, setComments };
+export { db as default };
