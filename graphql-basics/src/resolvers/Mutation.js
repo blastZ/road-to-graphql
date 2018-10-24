@@ -74,7 +74,7 @@ export default {
 
     return user;
   },
-  createPost(parent, args, { db }, info) {
+  createPost(parent, args, { db, pubsub }, info) {
     const { title, body, published, author } = args.data;
 
     const userExits = db.users.some(user => user.id === author);
@@ -91,6 +91,10 @@ export default {
       };
 
       db.posts.push(post);
+
+      if (post.published) {
+        pubsub.publish('POST_FROM_NEW_PUBLISHED', { post });
+      }
 
       return post;
     }
@@ -134,7 +138,7 @@ export default {
 
     return post;
   },
-  createComment(parent, args, { db }, info) {
+  createComment(parent, args, { db, pubsub }, info) {
     const { text, author, post } = args.data;
     const authorExits = db.users.some(o => o.id === author);
     const postExits = db.posts.some(o => o.id === post && o.published);
@@ -150,6 +154,8 @@ export default {
       };
 
       db.comments.push(comment);
+
+      pubsub.publish(`COMMENT_FROM_POST_${post}`, { comment });
 
       return comment;
     }
