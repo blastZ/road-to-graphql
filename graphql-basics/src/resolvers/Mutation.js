@@ -93,13 +93,18 @@ export default {
       db.posts.push(post);
 
       if (post.published) {
-        pubsub.publish('POST_FROM_NEW_PUBLISHED', { post });
+        pubsub.publish('post', {
+          post: {
+            mutation: 'CREATED',
+            data: post
+          }
+        });
       }
 
       return post;
     }
   },
-  deletePost(parent, args, { db }, info) {
+  deletePost(parent, args, { db, pubsub }, info) {
     const { id } = args;
 
     const index = db.posts.findIndex(o => o.id === id);
@@ -107,18 +112,31 @@ export default {
     if (index < 0) {
       return new Error('Post not found');
     } else {
-      const deletedPost = db.posts.splice(index, 1);
-      db.comments = db.comments.filter(o => o.post !== deletedPost[0].id);
-      return deletedPost[0];
+      const [post] = db.posts.splice(index, 1);
+      db.comments = db.comments.filter(o => o.post !== post.id);
+
+      if (post.published) {
+        pubsub.publish('post', {
+          post: {
+            mutation: 'DELETED',
+            data: post
+          }
+        });
+      }
+
+      return post;
     }
   },
-  updatePost(parent, args, { db }, info) {
+  updatePost(parent, args, { db, pubsub }, info) {
     const {
       id,
       data: { title, body, published }
     } = args;
 
     const post = db.posts.find(o => o.id === id);
+    const originPost = {
+      ...post
+    };
 
     if (!post) {
       return new Error('Post not found');
@@ -132,8 +150,31 @@ export default {
       post.body = body;
     }
 
-    if (published) {
+    if (typeof published === 'boolean') {
       post.published = published;
+    }
+
+    if (originPost.published && !post.published) {
+      pubsub.publish('post', {
+        post: {
+          mutation: 'DELETED',
+          data: post
+        }
+      });
+    } else if (!originPost.published && post.published) {
+      pubsub.publish('post', {
+        post: {
+          mutation: 'CREATED',
+          data: post
+        }
+      });
+    } else if (originPost.published) {
+      pubsub.publish('post', {
+        post: {
+          mutation: 'UPDATED',
+          data: post
+        }
+      });
     }
 
     return post;
@@ -155,12 +196,17 @@ export default {
 
       db.comments.push(comment);
 
-      pubsub.publish(`COMMENT_FROM_POST_${post}`, { comment });
+      pubsub.publish(`comment_from_${post}`, {
+        comment: {
+          mutation: 'CREATED',
+          data: comment
+        }
+      });
 
       return comment;
     }
   },
-  deleteComment(parent, args, { db }, info) {
+  deleteComment(parent, args, { db, pubsub }, info) {
     const { id } = args;
 
     const index = db.comments.findIndex(o => o.id === id);
@@ -168,12 +214,19 @@ export default {
     if (index < 0) {
       throw new Error('Comment not found');
     } else {
-      const deletedComment = db.comments.splice(index, 1);
+      const [comment] = db.comments.splice(index, 1);
 
-      return deletedComment[0];
+      pubsub.publish(`comment_from_${comment.post}`, {
+        comment: {
+          mutation: 'DELETED',
+          data: comment
+        }
+      });
+
+      return comment;
     }
   },
-  updateComment(parent, args, { db }, info) {
+  updateComment(parent, args, { db, pubsub }, info) {
     const {
       id,
       data: { text }
@@ -187,6 +240,13 @@ export default {
 
     if (text) {
       comment.text = text;
+
+      pubsub.publish(`comment_from_${comment.post}`, {
+        comment: {
+          mutation: 'UPDATED',
+          data: comment
+        }
+      });
     }
 
     return comment;
