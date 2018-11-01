@@ -23,3 +23,4 @@ Learn prisma to operate database with graphql.
 
 1. Setup prisma.
 2. Define type in prisma.
+3. Use prisma in node
